@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LegioTest.Api</name>
+    </assembly>
+    <members>
+        <member name="M:LegioTest.Api.Controllers.TransactionsController.Get(LegioTest.Domain.ModelsDTO.FilterDTO)">
+            <summary>
+            Get transactions after filtering from DB.
+            </summary>
+            <response code="200">List of transactions</response> 
+            <response code="400">If filter isn't correct</response> 
+            <response code="401">If JWT isn't correct</response> 
+        </member>
+        <member name="M:LegioTest.Api.Controllers.TransactionsController.Post(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Add transactions from .csv file.
+            </summary>
+            <response code="201">Transactions added</response> 
+            <response code="401">If JWT isn't correct</response> 
+            <response code="500">Data base error</response> 
+        </member>
+        <member name="M:LegioTest.Api.Controllers.TransactionsController.Put(System.Int32,LegioTest.Domain.ModelsDTO.TransactionDTO)">
+            <summary>
+            Edit transaction.
+            </summary>
+            <response code="200">Transaction edited</response> 
+            <response code="400">If id doesn't match</response> 
+            <response code="401">If JWT isn't correct</response> 
+            <response code="500">Data base error</response> 
+        </member>
+        <member name="M:LegioTest.Api.Controllers.TransactionsController.Delete(System.Int32)">
+            <summary>
+            Delete transaction.
+            </summary>
+            <response code="200">Transaction deleted</response> 
+            <response code="400">If id isn't correct</response> 
+            <response code="401">If JWT isn't correct</response> 
+            <response code="500">Data base error</response> 
+        </member>
+    </members>
+</doc>

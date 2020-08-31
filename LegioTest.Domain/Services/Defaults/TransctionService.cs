@@ -23,45 +23,12 @@ namespace LegioTest.Domain.Services.Defaults
             _transactionRepo = transactionRepo;
         }
 
-        public async Task AddAsync(TransactionDTO transactionDTO)
-        {
-            Transaction transaction = new Transaction()
-            {
-                Type = transactionDTO.Type,
-                Status = transactionDTO.Status,
-                ClientName = transactionDTO.ClientName,
-                Amount = transactionDTO.Amount
-            };
-
-            await _transactionRepo.AddAsync(transaction);
-        }
-
         public Task AddRangeAsync(IEnumerable<TransactionDTO> transactionDTOs)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var result = await _transactionRepo.DeleteAsync(id);
-
-            return result;
-        }
-
-        public async Task<bool> EditAsync(int id, TransactionDTO transactionDTO)
-        {
-            Transaction transaction = new Transaction()
-            {
-                Type = transactionDTO.Type,
-                Status = transactionDTO.Status,
-                ClientName = transactionDTO.ClientName,
-                Amount = transactionDTO.Amount
-            };
-
-            return await _transactionRepo.EditAsync(id,transaction);
-        }
-
-        public async Task<PagedTransactionsDTO> Find(FilterDTO filter)
+        public async Task<byte[]> CreateCSV(ExcelFilterDTO filter)
         {
             var transactionQuery = _transactionRepo.GetQuery();
 
@@ -77,9 +44,64 @@ namespace LegioTest.Domain.Services.Defaults
                     .Where(x => x.Type == (Type)filter.Type);
             }
 
+            var transactions = await transactionQuery.ToListAsync();
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var streamWriter = new StreamWriter(memoryStream))
+                {
+                    using (var csvWriter = new CsvWriter(streamWriter,CultureInfo.InvariantCulture))
+                    {
+                        csvWriter.Configuration.Delimiter = ";";
+                        csvWriter.WriteRecords(transactions);
+                    }
+
+                    return memoryStream.ToArray();
+                }
+                
+            }
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var result = await _transactionRepo.DeleteAsync(id);
+
+            return result;
+        }
+
+        public async Task<bool> EditAsync(int id, TransactionDTO transactionDTO)
+        {
+            Transaction transaction = new Transaction()
+            {
+                Id =  transactionDTO.Id,
+                Type = transactionDTO.Type,
+                Status = transactionDTO.Status,
+                ClientName = transactionDTO.ClientName,
+                Amount = transactionDTO.Amount
+            };
+
+            return await _transactionRepo.EditAsync(id,transaction);
+        }
+
+        public async Task<PagedTransactionsDTO> Find(FilterDTO filter)
+        {           
+            var transactionQuery = _transactionRepo.GetQuery();
+
+            if (filter.Status != StatusDTO.All)
+            {
+                transactionQuery = transactionQuery
+                    .Where(x => x.Status == (Status)filter.Status);
+            }
+
+            if (filter.Type != TypeDTO.All)
+            {
+                transactionQuery = transactionQuery
+                    .Where(x => x.Type == (Type)filter.Type);
+            }
+
             transactionQuery = transactionQuery
-                .Skip((filter.PageNumber - 1) * 10)
-                .Take(10);
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize);
 
             var transactions = await transactionQuery.ToListAsync();
 
@@ -104,11 +126,6 @@ namespace LegioTest.Domain.Services.Defaults
             };
 
             return pagedResult;
-        }
-
-        public Task<TransactionDTO> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<bool> ReadFile(IFormFile file)

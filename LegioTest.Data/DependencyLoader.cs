@@ -12,7 +12,7 @@ namespace LegioTest.Data
         public static void Load(IServiceCollection services)
         {
             services.AddScoped<ITransactionRepository, TransactionRepository>();
-
+            services.AddScoped<IUserRepository, UserRepository>();
         }
     }
 }

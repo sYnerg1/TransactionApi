@@ -5,9 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CsvHelper;
+using LegioTest.Api.ModelValidation;
 using LegioTest.Data.Models;
 using LegioTest.Domain.ModelsDTO;
 using LegioTest.Domain.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic.FileIO;
@@ -16,6 +19,7 @@ namespace LegioTest.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _transService;
@@ -37,6 +41,13 @@ namespace LegioTest.Api.Controllers
         [HttpGet("")]
         public async Task<ActionResult<IEnumerable<TransactionDTO>>> Get([FromQuery] FilterDTO filter)
         {
+            var validator = new FilterDTOValidator();
+            var validationResult = await validator.ValidateAsync(filter);
+
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+
             try
             {
                 var result = await _transService.Find(filter);
@@ -49,22 +60,67 @@ namespace LegioTest.Api.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Get transactions after filtering from DB.
+        /// </summary>
+        /// <response code="200">Download exel file with transactions after filtering</response> 
+        /// <response code="400">If filter isn't correct</response> 
+        /// <response code="401">If JWT isn't correct</response> 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [HttpGet("[action]")]
+        public async Task<ActionResult> GetExcel([FromQuery] ExcelFilterDTO filter)
+        {
+
+            var validator = new ExcelFilterValidator();
+            var validationResult = await validator.ValidateAsync(filter);
+
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            try
+            {
+                byte[] result = await _transService.CreateCSV(filter);
+
+                return File(result, "text/csv","transactins.csv");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500,ex.Message);
+            }
+        }
+
         /// <summary>
         /// Add transactions from .csv file.
         /// </summary>
         /// <response code="201">Transactions added</response> 
+        /// <response code="400">If file is null</response> 
         /// <response code="401">If JWT isn't correct</response> 
         /// <response code="500">Data base error</response> 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]
         public async Task<ActionResult> Post(IFormFile myFile)
         {
+            if(myFile == null)
+            {
+                return BadRequest("File not exist");
+            }
 
-           
+            try
+            {
+                bool result = await _transService.ReadFile(myFile);
 
-
+                return StatusCode(201);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500,ex.Message);
+            }
         }
 
         /// <summary>

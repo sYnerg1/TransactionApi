@@ -4,9 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using LegioTest.Api.SwaggerAuthOptions;
 using LegioTest.Data.EntityFramerwork;
 using LegioTest.Domain;
+using LegioTest.Domain.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -55,7 +58,10 @@ namespace LegioTest.Api
               };
           });
 
-            services.AddControllers();
+            services
+                .AddControllers()
+                .AddJsonOptions(options =>
+                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
             services.AddDbContext<LegioContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("LegioConnection")));
@@ -64,6 +70,8 @@ namespace LegioTest.Api
             .AddEntityFrameworkStores<LegioContext>();
 
             services.Load();
+
+            services.Configure<JwtOption>(Configuration.GetSection("Jwt"));
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -93,13 +101,21 @@ namespace LegioTest.Api
                         Url = new Uri("https://example.com/license"),
                     }
                 }
+
                 );
+                options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Scheme = "bearer"
+                });
+                options.OperationFilter<AuthenticationRequirementsOperationFilter>(); ;
+
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
-                //  options.DescribeAllEnumsAsStrings();
-             //   options.OperationFilter<FileUploadOperation>();
-
+                options.DescribeAllEnumsAsStrings();
             });
         }
 

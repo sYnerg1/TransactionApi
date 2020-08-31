@@ -9,10 +9,8 @@ namespace LegioTest.Data.Repositories
 {
     public interface ITransactionRepository
     {
-        Task AddAsync(Transaction value);
-        Task AddRangeAsync(IEnumerable<Transaction> value);
-        Task<Transaction> GetByIdAsync(int id);
-        Task<bool> EditAsync(int id, Transaction value);
+        Task AddRangeAsync(IEnumerable<Transaction> transactions);
+        Task<bool> EditAsync(int id, Transaction transaction);
         Task<bool> DeleteAsync(int id);
         IQueryable<Transaction> GetQuery();
     }

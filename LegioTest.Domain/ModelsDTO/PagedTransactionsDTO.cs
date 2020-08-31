@@ -7,6 +7,6 @@ namespace LegioTest.Domain.ModelsDTO
     public class PagedTransactionsDTO
     {
         public IEnumerable<TransactionDTO> TransactionDTOs { get; set; }
-        public int PageNumber { get; set; }
+        public int PageNumber { get; set; } 
     }
 }

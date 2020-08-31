@@ -4,14 +4,16 @@ using LegioTest.Data.EntityFramerwork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LegioTest.Data.Migrations
 {
     [DbContext(typeof(LegioContext))]
-    partial class LegioContextModelSnapshot : ModelSnapshot
+    [Migration("20200829185809_Key never generated")]
+    partial class Keynevergenerated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

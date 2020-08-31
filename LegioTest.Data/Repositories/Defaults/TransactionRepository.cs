@@ -1,5 +1,6 @@
 ﻿using LegioTest.Data.EntityFramerwork;
 using LegioTest.Data.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -18,20 +19,28 @@ namespace LegioTest.Data.Repositories.Defaults
         {
             _db = db;
         }
-        public async Task AddAsync(Transaction value)
-        {
-            await _db.Transactions.AddAsync(value);
-        }
 
-        public async Task AddRangeAsync(IEnumerable<Transaction> value)
+        public async Task AddRangeAsync(IEnumerable<Transaction> transactions)
         {
-            await _db.Transactions.AddRangeAsync(value);
-            
+          foreach(var t in transactions)
+            {
+                if (await _db.Transactions.AnyAsync(x => x.Id ==t.Id))
+                {
+                    _db.Entry(t).State = EntityState.Modified;
+                }
+                else
+                {
+                    _db.Entry(t).State = EntityState.Added;
+                }
+            }
+
+           await _db.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var existTransaction = await GetByIdAsync(id);
+            var existTransaction = await _db.Transactions
+                .FirstOrDefaultAsync(x=>x.Id==id);
 
             if (existTransaction != null)
             {
@@ -44,21 +53,15 @@ namespace LegioTest.Data.Repositories.Defaults
             }
         }
 
-        public async Task<bool> EditAsync(int id, Transaction value)
+        public async Task<bool> EditAsync(int id, Transaction transaction)
         {
             var transactionFromDb = await _db.Transactions.FirstOrDefaultAsync(x=>x.Id==id);
 
-            _db.Entry(transactionFromDb).CurrentValues.SetValues(value);
-            await _db.SaveChangesAsync();
+            _db.Entry(transactionFromDb).CurrentValues.SetValues(transaction);
 
             bool result = await _db.SaveChangesAsync() > 0;
 
             return  result;
-        }
-
-        public async Task<Transaction> GetByIdAsync(int id)
-        {
-            return await _db.Transactions.FirstOrDefaultAsync(x=>x.Id==id);
         }
 
         public IQueryable<Transaction> GetQuery()

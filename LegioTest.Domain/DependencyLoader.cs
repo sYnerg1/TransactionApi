@@ -13,6 +13,7 @@ namespace LegioTest.Domain
         {
             Data.DependencyLoader.Load(services);
             services.AddScoped<ITransactionService,TransctionService>();
+            services.AddScoped<IUserService, UserService>();
         }
     }
 }

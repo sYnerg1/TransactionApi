@@ -4,6 +4,40 @@
         <name>LegioTest.Api</name>
     </assembly>
     <members>
+        <member name="M:LegioTest.Api.Controllers.AccountController.Post(LegioTest.Api.Models.Account.RegisterUserModel)">
+            <summary>
+            Register new User.
+            </summary>
+            <remarks>
+            Sample request:
+            
+                api\Registration
+                  {
+                   "username" : "testlogin",
+                   "password": "Testpass"
+                   }
+            </remarks>
+            <response code="201">User registered</response> 
+            <response code="400">If user instance is null</response> 
+            <response code="500">Server error</response> 
+        </member>
+        <member name="M:LegioTest.Api.Controllers.AccountController.Post(LegioTest.Api.Models.Account.LoginUserModel)">
+             <summary>
+             Login and get JWT.
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 api\Login
+                   {
+                    "username" : "testlogin",
+                    "password": "Testpass"
+                    }
+             </remarks>
+             <response code="200">New istance of JWT</response> 
+             <response code="400">If user instance is null</response> 
+             <response code="500">Server error</response> 
+        </member>
         <member name="M:LegioTest.Api.Controllers.TransactionsController.Get(LegioTest.Domain.ModelsDTO.FilterDTO)">
             <summary>
             Get transactions after filtering from DB.
@@ -12,11 +46,20 @@
             <response code="400">If filter isn't correct</response> 
             <response code="401">If JWT isn't correct</response> 
         </member>
+        <member name="M:LegioTest.Api.Controllers.TransactionsController.GetExcel(LegioTest.Domain.ModelsDTO.ExcelFilterDTO)">
+            <summary>
+            Get transactions after filtering from DB.
+            </summary>
+            <response code="200">Download exel file with transactions after filtering</response> 
+            <response code="400">If filter isn't correct</response> 
+            <response code="401">If JWT isn't correct</response> 
+        </member>
         <member name="M:LegioTest.Api.Controllers.TransactionsController.Post(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
             Add transactions from .csv file.
             </summary>
             <response code="201">Transactions added</response> 
+            <response code="400">If file is null</response> 
             <response code="401">If JWT isn't correct</response> 
             <response code="500">Data base error</response> 
         </member>
@@ -37,6 +80,16 @@
             <response code="400">If id isn't correct</response> 
             <response code="401">If JWT isn't correct</response> 
             <response code="500">Data base error</response> 
+        </member>
+        <member name="P:LegioTest.Api.Models.Account.RegisterUserModel.UserName">
+            <summary>
+            Username of new user
+            </summary>
+        </member>
+        <member name="P:LegioTest.Api.Models.Account.RegisterUserModel.Password">
+            <summary>
+            New user password
+            </summary>
         </member>
     </members>
 </doc>

@@ -11,9 +11,13 @@ namespace LegioTest.Data.Models
     {
         [Name("TransactionId")]
         public int Id { get; set; }
+
         public Status Status { get; set; }
+
         public Type Type { get; set; }
+
         public string ClientName { get; set; }
+
         [Column(TypeName = "decimal(5,2)")]
         public decimal Amount { get; set; }
     }

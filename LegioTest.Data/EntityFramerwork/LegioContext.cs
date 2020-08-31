@@ -14,7 +14,10 @@ namespace LegioTest.Data.EntityFramerwork
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-           
+            modelBuilder.Entity<Transaction>()
+                .Property(t => t.Id)
+                .ValueGeneratedNever();
+
             base.OnModelCreating(modelBuilder);
         }
 

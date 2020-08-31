@@ -10,11 +10,10 @@ namespace LegioTest.Domain.Services
     public interface ITransactionService
     {
         Task AddRangeAsync(IEnumerable<TransactionDTO> transactionDTOs);
-        Task AddAsync(TransactionDTO transactionDTO);
         Task<bool> EditAsync(int id, TransactionDTO transactionDTO);
         Task<bool> DeleteAsync(int id);
-        Task<TransactionDTO> GetByIdAsync(int id);
         Task<PagedTransactionsDTO> Find(FilterDTO filter);
         Task<bool> ReadFile(IFormFile file);
+        Task<byte[]> CreateCSV(ExcelFilterDTO filter);
     }
 }
